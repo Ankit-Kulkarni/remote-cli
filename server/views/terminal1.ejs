@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Terminal html</title>
+    <link rel="stylesheet" type="text/css" href="/static/stylesheets/terminal.css">
+    
+
+    <!-- <link href="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/0.11.23/css/jquery.terminal.min.css" rel="stylesheet"/> -->
+
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+      li:before {
+          content: "$$ :- ";
+          width: 1.2em;
+          padding-left: 3px;
+          padding-right: 3px;
+          color: aqua;
+      }
+      .terminal1 {
+        list-style-type: none;
+        background: black;
+        color: white;
+        height: 500px;
+        width: 100%;
+        margin: 10px 20px 10px 10px;
+        border: 5px solid wheat;
+        padding-left: 10px; 
+      }
+      .container {
+        width: 960px;
+      }
+    </style>
+  </head>
+  <body>
+  <div class="container">
+    <div id="term_demo" >
+    </div>
+  </div>
+    <ul id="messages"></ul>
+    <form action="">
+      <input id="m" autocomplete="off" /><button>Send</button>
+    </form>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.terminal/0.11.23/js/jquery.terminal.min.js"></script>
+    <script>
+    $( document ).ready(function() {
+      var socket = io();
+      var clientRoomId = "";
+      currentUrl = window.location.href;
+      clientRoomId = currentUrl.split("/").pop();
+      socket.emit("handshake", clientRoomId);
+      socket.on('show_command_op', function(msg){
+        console.log("Got the command from client");
+
+        var element ='<div ><div style="width: 100%;padding-left: 0px;"><pre>'+ msg +'</pre></div></div>';
+        $('#term_demo').children('.terminal-output').append(element);
+        // $('#term_demo').children()[0].append(element);
+          // var li = $('#terminal-op').append($('<li>'));
+          // li.append($('<pre>').text(msg));
+        });
+
+      $(function($, undefined) {
+          $('#term_demo').terminal(function(command, term) {
+            if (command !== '') {
+              socket.emit('command', command, clientRoomId);
+            }
+            else{
+              console.log(term);
+            }
+
+          }, {
+              greetings: 'Welcome to command terminal',
+              name: 'Remote terminal',
+              height: 500,
+              prompt: '$$ > '
+          });
+      });
+    });
+
+      $('form').submit(function(){
+        socket.emit('command', $('#m').val(), clientRoomId);
+        $('#m').val('');
+        return false;
+      });
+    </script>
+  </body>
+</html>

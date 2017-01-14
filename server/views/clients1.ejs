@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font: 13px Helvetica, Arial; }
+      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #messages { list-style-type: none; margin: 0; padding: 0; }
+      #messages li { padding: 5px 10px; }
+      #messages li:nth-child(odd) { background: #eee; }
+    </style>
+  </head>
+  <body>
+    <ul id="client-list" style="color: red;border: 1px;font-size: 18px;">
+       Client list from below
+    </ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+
+    function update_client_list(live_client_list){
+      var client_list = ""
+      for (var item in live_client_list){
+        html = "  <li> You can join the live client - <a href='/terminal/"+ live_client_list[item] +"' target=_blank> " + item + " </a></li>"
+        var client_list = client_list +  html
+
+      
+      }
+      $('#client-list').html(client_list);
+      console.log(live_client_list);
+    }
+
+      var socket = io();
+      socket.emit("get_client_list");
+
+        // socket.emit('get_client_list', "");
+        socket.on('live_client_list', function(live_client_list){
+          update_client_list(live_client_list);
+          });
+        
+
+
+    </script>
+  </body>
+</html>
